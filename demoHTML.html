@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript to Flask</title>
+</head>
+<body>
+    <h1>Medical Image Store and Visualization System</h1>
+    <form id="ArchiveForm">
+
+        <label for="patientId">Patient ID:</label>
+        <input type="text" id="patientId" name="patient_id" placeholder="Enter Patient ID"><br><br>
+        
+        <label for="patientName">Patient Name:</label>
+        <input type="text" id="patientName" name="patient_name" placeholder="Enter Patient Name"><br><br>
+
+        <label for="sex">Patient Sex:</label>
+        <input type="text" id="sex" name="sex" placeholder="Enter Sex"><br><br>
+
+        <label for="birthdate">Birth Date:</label>
+        <input type="date" id="birthdate" name="birth_date"><br><br>
+        
+        <label for="phone">Phone:</label>
+        <input type="text" id="phone" name="phone" placeholder="Enter Phone Number"><br><br>
+
+        <button type="submit">Patient information Archiving</button>
+    </form>
+    <br>
+    <form id="uploadForm">
+        <input type="file" id="fileInput" name="file"><br><br>
+
+        <label for="uploadpatientId">Patient ID:</label>
+        <input type="text" id="uploadpatientId" name="patient_id" placeholder="Enter Patient ID"><br><br>
+        
+        <label for="modality">Modality:</label>
+        <input type="text" id="modality" name="modality" placeholder="Enter modality class"><br><br>
+
+        <button type="submit">Upload File</button>
+    </form>
+
+    <br>
+    <form id="queryForm">
+
+        <label for="querypatientId">Patient ID:</label>
+        <input type="text" id="querypatientId" name="patientId" placeholder="Enter Patient ID to query"><br><br>
+
+        <button type="submit">Query</button>
+    </form>
+
+    <br>
+    <button id="queryDataButton">Query Data</button>
+    <button id="deleteDataButton">Delete Data</button>
+    <button id="updateDataButton">Update Data</button>
+
+    <div id="response"></div> <!-- 用于显示响应数据 -->
+    <script>
+        document.getElementById('ArchiveForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // 防止表单默认提交行为
+            const formData = new FormData();
+            formData.append('Patient_ID',document.getElementById('patientId').value);
+            formData.append('Patient_Name',document.getElementById('patientName').value);
+            formData.append('Sex', document.getElementById('sex').value);
+            formData.append('Birth_Date', document.getElementById('birthdate').value);
+            formData.append('Phone', document.getElementById('phone').value);
+            //模拟某个医生用户：
+            formData.append('Doctor_ID','100100')
+            fetch('http://127.0.0.1:5000/Archiving', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                document.getElementById('response').innerText = JSON.stringify(data);
+            })
+            .catch((error) => console.error('Error:', error));
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // 防止表单默认提交行为
+            const fileInput = document.getElementById('fileInput');
+            const formData = new FormData();
+            formData.append('Patient_ID',document.getElementById('uploadpatientId').value);
+            formData.append('Modality',document.getElementById('modality').value);
+            formData.append('file', fileInput.files[0]);
+
+            fetch('http://127.0.0.1:5000/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                document.getElementById('response').innerText = JSON.stringify(data);
+            })
+            .catch((error) => console.error('Error:', error));
+        });
+        document.getElementById('queryForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // 防止表单默认提交行为
+            const formData = new FormData();
+            formData.append('Patient_ID',document.getElementById('querypatientId').value);
+            fetch('http://127.0.0.1:5000/query_data', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                document.getElementById('response').innerText = JSON.stringify(data);
+            })
+            .catch((error) => console.error('Error:', error));
+        });
+
+        document.getElementById('deleteDataButton').addEventListener('click', () => {
+            const data = { Patient_ID: '20240615001' };
+
+            fetch('http://127.0.0.1:5000/delete_data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => console.log('Success:', data))
+            .catch((error) => console.error('Error:', error));
+        });
+        document.getElementById('updateDataButton').addEventListener('click', () => {
+            const data = { Patient_ID: '20240615001' };
+
+            fetch('http://127.0.0.1:5000/update_data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => console.log('Success:', data))
+            .catch((error) => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
